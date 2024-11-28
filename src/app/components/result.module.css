@@ -1,0 +1,182 @@
+.result {
+  box-sizing: border-box;
+}
+
+.btnVolver {
+  display: block;
+  width: 50px;
+  margin-bottom: 10px;
+  background-color: #5476aa;
+  color: white;
+  font-size: 1em;
+  border: 0;
+  padding: 5px;
+  margin-top: 20px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.liquido {
+  font-size: larger;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.liquidoDato {
+  font-weight: bold;
+}
+
+.liquidoInfo {
+  margin-left: 10px;
+  position: relative;
+}
+
+.liquidoInfoItem {
+  font-weight: bold;
+  font-size: 12px;
+  border: 2px solid gray;
+  background-color: gray;
+  color: white;
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 13px;
+  width: 13px;
+  margin-bottom: 3px;
+}
+
+.liquidoInfo .liquidoTooltip {
+  visibility: hidden;
+  width: 300px;
+  background-color: #5476aa;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  font-size: small;
+  border-radius: 6px;
+
+  /* Posicion tooltip */
+  position: absolute;
+  z-index: 1;
+  top: 155%;
+  left: 50%;
+  margin-left: -260px;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Flecha tooltip */
+.liquidoInfo .liquidoTooltip::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%;
+  left: 260px;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #5476aa transparent;
+}
+
+.liquidoInfo:hover .liquidoTooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.resultSection {
+  text-align: center;
+}
+
+.detalleBPS {
+  margin: auto;
+  max-width: 200px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+
+.tablaBPSLabel {
+  text-align: right;
+}
+
+.tablaBPSDato {
+  text-align: right;
+}
+
+.totalBPS {
+  font-weight: bold;
+}
+
+.detalleIRPF {
+  margin: auto;
+  max-width: 400px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px 10px;
+}
+
+.tablaIRPFHead {
+  text-align: right;
+  font-weight: bold;
+}
+
+.tablaIRPFLabel {
+  text-align: right;
+}
+
+.tablaIRPFDato {
+  text-align: right;
+}
+
+.resumenIRPF {
+  margin: auto;
+  max-width: 400px;
+  margin-top: 20px;
+  display: grid;
+  column-gap: auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px 10px;
+}
+
+.resumenIRPFLabel {
+  grid-column: 1 / span 2;
+}
+
+.resumenIRPFLabelTotal {
+  font-weight: bold;
+}
+
+.resumenIRPFDato {
+  grid-column: 4;
+  text-align: right;
+}
+
+.resumenIRPFTotal {
+  font-weight: bold;
+}
+
+.detalleProfesionales {
+  margin: auto;
+  max-width: 300px;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px 10px;
+}
+
+.tablaProfesionalesLabel {
+  grid-column: 1;
+}
+
+.tablaProfesionalesDato {
+  text-align: right;
+}
+
+@media only screen and (max-width: 783px) {
+  .result {
+    width: 95%;
+    margin: auto;
+  }
+}

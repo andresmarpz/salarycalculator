@@ -1,101 +1,382 @@
-import Image from "next/image";
+"use client";
+import { ChangeEvent, useState } from "react";
+import { calcularImpuestos, DetalleIRPF } from "../../lib/calc";
+import styles from "./form.module.css";
+import { BPC, TOPE_APORTES_JUBILATORIOS } from "../../lib/constants";
+import Result from "@/app/components/result";
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export interface IFormState {
+  anio: number;
+  salarioNominal: number;
+  salarioUSD: number;
+  cotizacionDolar: number;
+  tieneHijos: boolean;
+  tieneConyuge: boolean;
+  factorDeduccionPersonasACargo: number;
+  cantHijosSinDiscapacidad: number;
+  cantHijosConDiscapacidad: number;
+  aportesFondoSolidaridad: number;
+  adicionalFondoSolidaridad: boolean;
+  aportesCJPPU: number;
+  otrasDeducciones: number;
+  formValido: boolean;
+}
+
+interface IState {
+  formState: IFormState;
+  result: {
+    anio: number;
+    formSubmitted: boolean;
+    salarioLiquido: number;
+    aportesJubilatorios: number;
+    aportesFONASA: number;
+    aporteFRL: number;
+    detalleIRPF: DetalleIRPF | null;
+    totalIRPF: number;
+    aportesFondoSolidaridad: number;
+    adicionalFondoSolidaridad: boolean;
+    aportesCJPPU: number;
+  } | null;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [state, setState] = useState<IState>({
+    formState: {
+      anio: new Date().getFullYear(),
+      salarioNominal: 0,
+      salarioUSD: 0,
+      cotizacionDolar: 0,
+      tieneHijos: false,
+      tieneConyuge: false,
+      factorDeduccionPersonasACargo: 1,
+      cantHijosSinDiscapacidad: 0,
+      cantHijosConDiscapacidad: 0,
+      aportesFondoSolidaridad: 0,
+      adicionalFondoSolidaridad: false,
+      aportesCJPPU: 0,
+      otrasDeducciones: 0,
+      formValido: true,
+    },
+    result: null,
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  function onFormElementChanged(
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
+    const name = e.target.name;
+    const value =
+      e.target.type === "checkbox"
+        ? (e.target as HTMLInputElement).checked
+        : Number(e.target.value);
+
+    setState({
+      ...state,
+      formState: {
+        ...state.formState,
+        [name]: value,
+        formValido: true,
+      },
+    });
+  }
+
+  function onFormSubmitted(
+    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
+  ) {
+    e.preventDefault();
+
+    if (state.formState.salarioNominal > 0) {
+      const {
+        salarioLiquido,
+        aportesJubilatorios,
+        aportesFONASA,
+        aporteFRL,
+        detalleIRPF,
+        totalIRPF,
+      } = calcularImpuestos(
+        state.formState.anio,
+        state.formState.salarioNominal,
+        state.formState.tieneHijos,
+        state.formState.tieneConyuge,
+        state.formState.factorDeduccionPersonasACargo,
+        state.formState.cantHijosSinDiscapacidad,
+        state.formState.cantHijosConDiscapacidad,
+        state.formState.aportesFondoSolidaridad,
+        state.formState.adicionalFondoSolidaridad,
+        state.formState.aportesCJPPU,
+        state.formState.otrasDeducciones
+      );
+
+      if (salarioLiquido >= 0) {
+        setState({
+          ...state,
+          result: {
+            anio: state.formState.anio,
+            formSubmitted: true,
+            salarioLiquido: salarioLiquido,
+            aportesJubilatorios: aportesJubilatorios,
+            aportesFONASA: aportesFONASA,
+            aporteFRL: aporteFRL,
+            detalleIRPF: detalleIRPF,
+            totalIRPF: totalIRPF,
+            aportesFondoSolidaridad: state.formState.aportesFondoSolidaridad,
+            adicionalFondoSolidaridad:
+              state.formState.adicionalFondoSolidaridad,
+            aportesCJPPU: state.formState.aportesCJPPU,
+          },
+          formState: {
+            ...state.formState,
+            formValido: true,
+          },
+        });
+      } else {
+        setState({
+          ...state,
+          result: null,
+          formState: {
+            ...state.formState,
+            formValido: false,
+          },
+        });
+      }
+    } else {
+      setState({
+        ...state,
+        result: null,
+        formState: {
+          ...state.formState,
+          formValido: false,
+        },
+      });
+    }
+  }
+
+  function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
+    e.target?.select();
+  }
+
+  return (
+    <div>
+      <form onSubmit={onFormSubmitted}>
+        <div className={styles.formGrid}>
+          <label htmlFor="anio">Año</label>
+          <input
+            id="anio"
+            name="anio"
+            className={styles.formInput}
+            type="number"
+            onChange={onFormElementChanged}
+            defaultValue={state.formState.anio}
+          />
+
+          <label htmlFor="inputSalario">Salario nominal en pesos:</label>
+          <input
+            id="inputSalario"
+            name="salarioNominal"
+            className={styles.formInput}
+            type="number"
+            min="0"
+            step="0.01"
+            onFocus={handleFocus}
+            value={state.formState.salarioNominal}
+            onChange={onFormElementChanged}
+            disabled={state.formState.salarioUSD > 0}
+          />
+
+          <label htmlFor="inputSalarioUSD">Salario en USD:</label>
+          <input
+            id="inputSalarioUSD"
+            name="salarioUSD"
+            className={styles.formInput}
+            type="number"
+            min="0"
+            step="0.01"
+            onFocus={handleFocus}
+            value={state.formState.salarioUSD}
+            onChange={(e) => {
+              const usdValue = Number(e.target.value);
+              const exchangeRate = state.formState.cotizacionDolar;
+              setState({
+                ...state,
+                formState: {
+                  ...state.formState,
+                  salarioUSD: usdValue,
+                  salarioNominal: usdValue * exchangeRate,
+                  formValido: true,
+                },
+              });
+            }}
+          />
+
+          <label htmlFor="inputCotizacion">Cotización del dólar:</label>
+          <input
+            id="inputCotizacion"
+            name="cotizacionDolar"
+            className={styles.formInput}
+            type="number"
+            min="0"
+            step="0.01"
+            onFocus={handleFocus}
+            value={state.formState.cotizacionDolar}
+            onChange={(e) => {
+              const exchangeRate = Number(e.target.value);
+              const usdValue = state.formState.salarioUSD;
+              setState({
+                ...state,
+                formState: {
+                  ...state.formState,
+                  cotizacionDolar: exchangeRate,
+                  salarioNominal: usdValue * exchangeRate,
+                  formValido: true,
+                },
+              });
+            }}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {BPC.has(state.formState.anio) ? null : (
+          <div className={classNames(styles.alert, styles.alertDanger)}>
+            BPC no encontrado para el año {state.formState.anio}
+          </div>
+        )}
+
+        {TOPE_APORTES_JUBILATORIOS.has(state.formState.anio) ? null : (
+          <div className={classNames(styles.alert, styles.alertWarning)}>
+            TOPE APORTE JUBILATORIO no encontrado para el año{" "}
+            {state.formState.anio}, utilizando valor de{" "}
+            {state.formState.anio - 1}
+          </div>
+        )}
+
+        <h2 className={styles.formSection}>Cálculo de aportes BPS</h2>
+        <div className={styles.formGrid}>
+          <label htmlFor="inputHijosACargo">¿Tiene hijos a cargo?</label>
+          <input
+            id="inputHijosACargo"
+            name="tieneHijos"
+            className={styles.formInput}
+            type="checkbox"
+            checked={state.formState.tieneHijos}
+            onChange={onFormElementChanged}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <label htmlFor="inputConyujeACargo">¿Tiene cónyuge a cargo?</label>
+          <input
+            id="inputConyujeACargo"
+            name="tieneConyuge"
+            className={styles.formInput}
+            type="checkbox"
+            checked={state.formState.tieneConyuge}
+            onChange={onFormElementChanged}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+        </div>
+        <h2 className={styles.formSection}>Cálculo de IRPF</h2>
+        <h3 className={styles.formSubSection}>Cantidad de personas a cargo:</h3>
+        <div className={styles.formGrid}>
+          <label htmlFor="inputFactorDeduccion">
+            Porcentaje de deducción de las personas a cargo:
+          </label>
+          <select
+            id="inputFactorDeduccion"
+            name="factorDeduccionPersonasACargo"
+            className={styles.formInput}
+            value={state.formState.factorDeduccionPersonasACargo}
+            onChange={onFormElementChanged}
+          >
+            <option value="1">100%</option>
+            <option value="0.5">50%</option>
+            <option value="0">No deducción</option>
+          </select>
+          <label htmlFor="inputHijosSinDiscapacidad">
+            Cantidad de hijos sin discapacidad:
+          </label>
+          <input
+            id="inputHijosSinDiscapacidad"
+            name="cantHijosSinDiscapacidad"
+            className={styles.formInput}
+            type="number"
+            onFocus={handleFocus}
+            min="0"
+            value={state.formState.cantHijosSinDiscapacidad}
+            onChange={onFormElementChanged}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <label htmlFor="inputHijosConDiscapacidad">
+            Cantidad de hijos con discapacidad:
+          </label>
+          <input
+            id="inputHijosConDiscapacidad"
+            name="cantHijosConDiscapacidad"
+            className={styles.formInput}
+            type="number"
+            onFocus={handleFocus}
+            min="0"
+            value={state.formState.cantHijosConDiscapacidad}
+            onChange={onFormElementChanged}
+          />
+        </div>
+        <h3 className={styles.formSubSection}>Si es profesional:</h3>
+        <div className={styles.formGrid}>
+          <label htmlFor="inputAportesFondoSolidaridad">
+            ¿Aporta al Fondo de Solidaridad?
+          </label>
+          <select
+            id="inputAportesFondoSolidaridad"
+            name="aportesFondoSolidaridad"
+            className={styles.formInput}
+            value={state.formState.aportesFondoSolidaridad}
+            onChange={onFormElementChanged}
+          >
+            <option value="0">No</option>
+            <option value="0.5">1/2 BPC</option>
+            <option value="1">1 BPC</option>
+            <option value="2">2 BPC</option>
+          </select>
+          <label htmlFor="inputAdicionalFondoSolidaridad">
+            ¿Adicional Fondo de Solidaridad?
+          </label>
+          <input
+            id="inputAdicionalFondoSolidaridad"
+            name="adicionalFondoSolidaridad"
+            className={styles.formInput}
+            type="checkbox"
+            checked={state.formState.adicionalFondoSolidaridad}
+            onChange={onFormElementChanged}
+          />
+          <label htmlFor="inputAportesCajaProfesionales">
+            Aporte mensual a CJPPU o Caja Notarial:
+          </label>
+          <input
+            id="inputAportesCajaProfesionales"
+            name="aportesCJPPU"
+            className={styles.formInput}
+            type="number"
+            onFocus={handleFocus}
+            min="0"
+            value={state.formState.aportesCJPPU}
+            onChange={onFormElementChanged}
+          />
+          <label htmlFor="inputOtrasDeducciones">Otras deducciones:</label>
+          <input
+            id="inputOtrasDeducciones"
+            name="otrasDeducciones"
+            className={styles.formInput}
+            type="number"
+            onFocus={handleFocus}
+            min="0"
+            value={state.formState.otrasDeducciones}
+            onChange={onFormElementChanged}
+          />
+        </div>
+        {BPC.has(state.formState.anio) ? (
+          <button key={+new Date()} className={styles.btnSubmit}>
+            Calcular
+          </button>
+        ) : null}
+      </form>
+
+      {state.result ? <Result calculateFrom={state.result} /> : null}
     </div>
   );
 }

@@ -1,0 +1,81 @@
+.form {
+  box-sizing: border-box;
+}
+
+.formSection {
+  text-align: center;
+}
+
+.formSubSection {
+  text-align: center;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 10px;
+  text-align: right;
+}
+
+.formInput {
+  box-sizing: border-box;
+  width: 20%;
+  min-width: 120px;
+  text-align: right;
+  padding: 2px;
+}
+
+@keyframes rojoAAzul {
+  from {
+    background-color: rgb(255, 83, 71);
+  }
+  to {
+    background-color: #5476aa;
+  }
+}
+
+.btnSubmit {
+  margin: auto;
+  display: block;
+  background-color: #5476aa;
+  color: white;
+  font-size: 1em;
+  border: 0;
+  padding: 0.5rem 1rem;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.btnSubmitInvalido {
+  animation-name: rojoAAzul;
+  animation-duration: 2s;
+}
+
+@media only screen and (max-width: 783px) {
+  .form {
+    width: 95%;
+    margin: auto;
+  }
+}
+
+.alert {
+  margin: 2rem auto;
+  text-align: center;
+  max-width: 50%;
+  padding: 1rem;
+
+  &.alertDanger {
+    color: #58151c;
+    background-color: #f8d7da;
+  }
+
+  &.alertSuccess {
+    color: #155724;
+    background-color: #d4edda;
+  }
+
+  &.alertWarning {
+    color: #664d03;
+    background-color: #fff3cd;
+  }
+}
