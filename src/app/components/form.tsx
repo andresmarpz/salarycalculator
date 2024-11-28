@@ -94,7 +94,7 @@ export default function Form({
                           type: "checkbox",
                           checked: checked === true,
                         },
-                      } as any)
+                      } as never)
                     }
                   />
                   <Label htmlFor="hasChildren">¿Tiene hijos a cargo?</Label>
@@ -111,7 +111,7 @@ export default function Form({
                           type: "checkbox",
                           checked: checked === true,
                         },
-                      } as any)
+                      } as never)
                     }
                   />
                   <Label htmlFor="hasSpouse">¿Tiene cónyuge a cargo?</Label>
@@ -138,7 +138,7 @@ export default function Form({
                           name: "factorDeduccionPersonasACargo",
                           value: value,
                         },
-                      } as any)
+                      } as never)
                     }
                   >
                     <SelectTrigger>
@@ -197,7 +197,7 @@ export default function Form({
                           name: "aportesFondoSolidaridad",
                           value: value,
                         },
-                      } as any)
+                      } as never)
                     }
                   >
                     <SelectTrigger>
@@ -224,7 +224,7 @@ export default function Form({
                           type: "checkbox",
                           checked: checked === true,
                         },
-                      } as any)
+                      } as never)
                     }
                   />
                   <Label htmlFor="additionalSolidarityFund">
