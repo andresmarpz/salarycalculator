@@ -28,6 +28,11 @@ const BPC = new Map([
 ]);
 
 /**
+ * Valor del dolar en pesos uruguayos.
+ */
+export const USD_VALUE = 44.25;
+
+/**
  * Franjas de IPRF.
  *  - 'desde' y 'hasta' son los valores en BPC en los que está comprendida la franja.
  *

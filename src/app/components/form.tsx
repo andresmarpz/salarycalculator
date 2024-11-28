@@ -17,10 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { USD_VALUE } from "../../../lib/constants";
 
 export interface IFormState {
   anio: number;
   salarioNominal: number;
+  salarioNominalUSD: number;
   tieneHijos: boolean;
   tieneConyuge: boolean;
   factorDeduccionPersonasACargo: number;
@@ -48,6 +50,44 @@ export default function Form({
   ) => void;
   formState: IFormState;
 }) {
+  const handleUSDChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const usdValue = parseFloat(e.target.value) || 0;
+    const pesosValue = usdValue * USD_VALUE;
+
+    onFormElementChanged({
+      target: {
+        name: "salarioNominalUSD",
+        value: usdValue.toString(),
+      },
+    } as never);
+
+    onFormElementChanged({
+      target: {
+        name: "salarioNominal",
+        value: pesosValue.toString(),
+      },
+    } as never);
+  };
+
+  const handlePesosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const pesosValue = parseFloat(e.target.value) || 0;
+    const usdValue = pesosValue / USD_VALUE;
+
+    onFormElementChanged({
+      target: {
+        name: "salarioNominal",
+        value: pesosValue.toString(),
+      },
+    } as never);
+
+    onFormElementChanged({
+      target: {
+        name: "salarioNominalUSD",
+        value: usdValue.toFixed(2),
+      },
+    } as never);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -66,13 +106,27 @@ export default function Form({
                 <Input id="year" name="anio" value={formState.anio} disabled />
               </div>
               <div className="grid gap-2">
+                <Label htmlFor="salaryUSD">Salario nominal en USD</Label>
+                <Input
+                  id="salaryUSD"
+                  name="salarioNominalUSD"
+                  type="number"
+                  value={formState.salarioNominalUSD}
+                  onChange={handleUSDChange}
+                  required
+                />
+              </div>
+              <div className="text-sm text-muted-foreground text-right">
+                1 USD ~ {USD_VALUE.toLocaleString("es-UY")} UYU
+              </div>
+              <div className="grid gap-2">
                 <Label htmlFor="salary">Salario nominal en pesos</Label>
                 <Input
                   id="salary"
                   name="salarioNominal"
                   type="number"
                   value={formState.salarioNominal}
-                  onChange={onFormElementChanged}
+                  onChange={handlePesosChange}
                   required
                 />
               </div>

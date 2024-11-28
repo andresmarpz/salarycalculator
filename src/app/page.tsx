@@ -9,7 +9,7 @@ import Form from "@/app/components/form";
 export interface IFormState {
   anio: number;
   salarioNominal: number;
-  salarioUSD: number;
+  salarioNominalUSD: number;
   cotizacionDolar: number;
   tieneHijos: boolean;
   tieneConyuge: boolean;
@@ -45,7 +45,7 @@ export default function Home() {
     formState: {
       anio: new Date().getFullYear(),
       salarioNominal: 0,
-      salarioUSD: 0,
+      salarioNominalUSD: 0,
       cotizacionDolar: 0,
       tieneHijos: false,
       tieneConyuge: false,
