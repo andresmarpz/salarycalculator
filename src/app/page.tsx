@@ -5,6 +5,7 @@ import { calcularImpuestos, DetalleIRPF } from "../../lib/calc";
 import Result from "@/app/components/result";
 
 import Form from "@/app/components/form";
+import SalaryChart from "@/app/components/salary-chart";
 
 export interface IFormState {
   anio: number;
@@ -73,14 +74,14 @@ export default function Home() {
         ? (e.target as HTMLInputElement).checked
         : Number(e.target.value);
 
-    setState({
+    setState((state) => ({
       ...state,
       formState: {
         ...state.formState,
         [name]: value,
         formValido: true,
       },
-    });
+    }));
   }
 
   /**
@@ -99,19 +100,20 @@ export default function Home() {
         aporteFRL,
         detalleIRPF,
         totalIRPF,
-      } = calcularImpuestos(
-        state.formState.anio,
-        state.formState.salarioNominal,
-        state.formState.tieneHijos,
-        state.formState.tieneConyuge,
-        state.formState.factorDeduccionPersonasACargo,
-        state.formState.cantHijosSinDiscapacidad,
-        state.formState.cantHijosConDiscapacidad,
-        state.formState.aportesFondoSolidaridad,
-        state.formState.adicionalFondoSolidaridad,
-        state.formState.aportesCJPPU,
-        state.formState.otrasDeducciones
-      );
+      } = calcularImpuestos({
+        anio: state.formState.anio,
+        salarioNominal: state.formState.salarioNominal,
+        tieneHijos: state.formState.tieneHijos,
+        tieneConyuge: state.formState.tieneConyuge,
+        factorDeduccionPersonasACargo:
+          state.formState.factorDeduccionPersonasACargo,
+        cantHijosSinDiscapacidad: state.formState.cantHijosSinDiscapacidad,
+        cantHijosConDiscapacidad: state.formState.cantHijosConDiscapacidad,
+        aportesFondoSolidaridad: state.formState.aportesFondoSolidaridad,
+        adicionalFondoSolidaridad: state.formState.adicionalFondoSolidaridad,
+        aportesCJPPU: state.formState.aportesCJPPU,
+        otrasDeducciones: state.formState.otrasDeducciones,
+      });
 
       if (salarioLiquido >= 0) {
         setState({
@@ -167,7 +169,11 @@ export default function Home() {
             formState={state.formState}
           />
 
-          <Result calculateFrom={state.result} />
+          <Result calculateFrom={state.result} formState={state.formState} />
+        </div>
+
+        <div className="mt-8">
+          <SalaryChart salaryUSD={state.formState.salarioNominalUSD} />
         </div>
       </div>
     </div>

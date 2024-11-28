@@ -23,6 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import SalaryChart from "./salary-chart";
+import { IFormState } from "@/app/components/form";
 
 interface IProps {
   anio: number;
@@ -38,7 +40,13 @@ interface IProps {
   aportesCJPPU: number;
 }
 
-function Result({ calculateFrom }: { calculateFrom: IProps | null }) {
+function Result({
+  calculateFrom,
+  formState,
+}: {
+  calculateFrom: IProps | null;
+  formState: IFormState;
+}) {
   if (!calculateFrom) return null;
 
   const {
@@ -62,6 +70,9 @@ function Result({ calculateFrom }: { calculateFrom: IProps | null }) {
 
   const totalBPSRedondeado = () =>
     aportesJubilatorios + aportesFONASA + aporteFRL; //.toFixed(2)
+
+  const totalDeducciones = () =>
+    totalBPSRedondeado() + totalIRPF + aportesFondoSolidaridad;
 
   return (
     <Card>
@@ -190,6 +201,19 @@ function Result({ calculateFrom }: { calculateFrom: IProps | null }) {
                 </TableRow>
               </TableBody>
             </Table>
+
+            {/* Total de deducciones, suma de todos los detalles */}
+            <div className="rounded-lg bg-muted p-4">
+              <div className="text-sm text-muted-foreground">
+                Total deducciones
+              </div>
+              <div className="text-3xl font-bold">
+                $
+                {totalDeducciones().toLocaleString("es-UY", {
+                  maximumFractionDigits: 2,
+                })}
+              </div>
+            </div>
           </div>
         ) : (
           <div className="flex h-[600px] items-center justify-center text-muted-foreground">

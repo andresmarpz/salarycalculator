@@ -203,19 +203,33 @@ export const calcularIPRF = (
  * @param otrasDeducciones - Otras deducciones.
  *
  */
-export const calcularImpuestos = (
-  anio: number,
-  salarioNominal: number,
-  tieneHijos: boolean,
-  tieneConyuge: boolean,
-  factorDeduccionPersonasACargo: number,
-  cantHijosSinDiscapacidad: number,
-  cantHijosConDiscapacidad: number,
-  aportesFondoSolidaridad: number,
-  adicionalFondoSolidaridad: boolean,
-  aportesCJPPU: number,
-  otrasDeducciones: number
-) => {
+export const calcularImpuestos = (input: {
+  anio: number;
+  salarioNominal: number;
+  tieneHijos: boolean;
+  tieneConyuge: boolean;
+  factorDeduccionPersonasACargo: number;
+  cantHijosSinDiscapacidad: number;
+  cantHijosConDiscapacidad: number;
+  aportesFondoSolidaridad: number;
+  adicionalFondoSolidaridad: boolean;
+  aportesCJPPU: number;
+  otrasDeducciones: number;
+}) => {
+  const {
+    anio,
+    salarioNominal,
+    tieneHijos,
+    tieneConyuge,
+    factorDeduccionPersonasACargo,
+    cantHijosSinDiscapacidad,
+    cantHijosConDiscapacidad,
+    aportesFondoSolidaridad,
+    adicionalFondoSolidaridad,
+    aportesCJPPU,
+    otrasDeducciones,
+  } = input;
+
   const { aportesJubilatorios, aportesFONASA, aporteFRL } = calcularAportesBPS(
     anio,
     salarioNominal,
