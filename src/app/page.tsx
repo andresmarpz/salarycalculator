@@ -5,6 +5,34 @@ import styles from "./form.module.css";
 import { BPC, TOPE_APORTES_JUBILATORIOS } from "../../lib/constants";
 import Result from "@/app/components/result";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import Form from "@/app/components/form";
+
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
@@ -64,6 +92,9 @@ export default function Home() {
     result: null,
   });
 
+  /**
+   * Función que se llama cuando el usuario modifica alguno de los inputs del formulario.
+   */
   function onFormElementChanged(
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
@@ -83,6 +114,9 @@ export default function Home() {
     });
   }
 
+  /**
+   * Función que se llama cuando el usuario hace submit en el formulario.
+   */
   function onFormSubmitted(
     e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
   ) {
@@ -154,229 +188,19 @@ export default function Home() {
     }
   }
 
-  function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
-    e.target?.select();
-  }
-
   return (
-    <div>
-      <form onSubmit={onFormSubmitted}>
-        <div className={styles.formGrid}>
-          <label htmlFor="anio">Año</label>
-          <input
-            id="anio"
-            name="anio"
-            className={styles.formInput}
-            type="number"
-            onChange={onFormElementChanged}
-            defaultValue={state.formState.anio}
+    <div className="min-h-screen bg-background p-4 lg:p-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <Form
+            onFormElementChanged={onFormElementChanged}
+            onFormSubmitted={onFormSubmitted}
+            formState={state.formState}
           />
 
-          <label htmlFor="inputSalario">Salario nominal en pesos:</label>
-          <input
-            id="inputSalario"
-            name="salarioNominal"
-            className={styles.formInput}
-            type="number"
-            min="0"
-            step="0.01"
-            onFocus={handleFocus}
-            value={state.formState.salarioNominal}
-            onChange={onFormElementChanged}
-            disabled={state.formState.salarioUSD > 0}
-          />
-
-          <label htmlFor="inputSalarioUSD">Salario en USD:</label>
-          <input
-            id="inputSalarioUSD"
-            name="salarioUSD"
-            className={styles.formInput}
-            type="number"
-            min="0"
-            step="0.01"
-            onFocus={handleFocus}
-            value={state.formState.salarioUSD}
-            onChange={(e) => {
-              const usdValue = Number(e.target.value);
-              const exchangeRate = state.formState.cotizacionDolar;
-              setState({
-                ...state,
-                formState: {
-                  ...state.formState,
-                  salarioUSD: usdValue,
-                  salarioNominal: usdValue * exchangeRate,
-                  formValido: true,
-                },
-              });
-            }}
-          />
-
-          <label htmlFor="inputCotizacion">Cotización del dólar:</label>
-          <input
-            id="inputCotizacion"
-            name="cotizacionDolar"
-            className={styles.formInput}
-            type="number"
-            min="0"
-            step="0.01"
-            onFocus={handleFocus}
-            value={state.formState.cotizacionDolar}
-            onChange={(e) => {
-              const exchangeRate = Number(e.target.value);
-              const usdValue = state.formState.salarioUSD;
-              setState({
-                ...state,
-                formState: {
-                  ...state.formState,
-                  cotizacionDolar: exchangeRate,
-                  salarioNominal: usdValue * exchangeRate,
-                  formValido: true,
-                },
-              });
-            }}
-          />
+          <Result calculateFrom={state.result} />
         </div>
-
-        {BPC.has(state.formState.anio) ? null : (
-          <div className={classNames(styles.alert, styles.alertDanger)}>
-            BPC no encontrado para el año {state.formState.anio}
-          </div>
-        )}
-
-        {TOPE_APORTES_JUBILATORIOS.has(state.formState.anio) ? null : (
-          <div className={classNames(styles.alert, styles.alertWarning)}>
-            TOPE APORTE JUBILATORIO no encontrado para el año{" "}
-            {state.formState.anio}, utilizando valor de{" "}
-            {state.formState.anio - 1}
-          </div>
-        )}
-
-        <h2 className={styles.formSection}>Cálculo de aportes BPS</h2>
-        <div className={styles.formGrid}>
-          <label htmlFor="inputHijosACargo">¿Tiene hijos a cargo?</label>
-          <input
-            id="inputHijosACargo"
-            name="tieneHijos"
-            className={styles.formInput}
-            type="checkbox"
-            checked={state.formState.tieneHijos}
-            onChange={onFormElementChanged}
-          />
-          <label htmlFor="inputConyujeACargo">¿Tiene cónyuge a cargo?</label>
-          <input
-            id="inputConyujeACargo"
-            name="tieneConyuge"
-            className={styles.formInput}
-            type="checkbox"
-            checked={state.formState.tieneConyuge}
-            onChange={onFormElementChanged}
-          />
-        </div>
-        <h2 className={styles.formSection}>Cálculo de IRPF</h2>
-        <h3 className={styles.formSubSection}>Cantidad de personas a cargo:</h3>
-        <div className={styles.formGrid}>
-          <label htmlFor="inputFactorDeduccion">
-            Porcentaje de deducción de las personas a cargo:
-          </label>
-          <select
-            id="inputFactorDeduccion"
-            name="factorDeduccionPersonasACargo"
-            className={styles.formInput}
-            value={state.formState.factorDeduccionPersonasACargo}
-            onChange={onFormElementChanged}
-          >
-            <option value="1">100%</option>
-            <option value="0.5">50%</option>
-            <option value="0">No deducción</option>
-          </select>
-          <label htmlFor="inputHijosSinDiscapacidad">
-            Cantidad de hijos sin discapacidad:
-          </label>
-          <input
-            id="inputHijosSinDiscapacidad"
-            name="cantHijosSinDiscapacidad"
-            className={styles.formInput}
-            type="number"
-            onFocus={handleFocus}
-            min="0"
-            value={state.formState.cantHijosSinDiscapacidad}
-            onChange={onFormElementChanged}
-          />
-          <label htmlFor="inputHijosConDiscapacidad">
-            Cantidad de hijos con discapacidad:
-          </label>
-          <input
-            id="inputHijosConDiscapacidad"
-            name="cantHijosConDiscapacidad"
-            className={styles.formInput}
-            type="number"
-            onFocus={handleFocus}
-            min="0"
-            value={state.formState.cantHijosConDiscapacidad}
-            onChange={onFormElementChanged}
-          />
-        </div>
-        <h3 className={styles.formSubSection}>Si es profesional:</h3>
-        <div className={styles.formGrid}>
-          <label htmlFor="inputAportesFondoSolidaridad">
-            ¿Aporta al Fondo de Solidaridad?
-          </label>
-          <select
-            id="inputAportesFondoSolidaridad"
-            name="aportesFondoSolidaridad"
-            className={styles.formInput}
-            value={state.formState.aportesFondoSolidaridad}
-            onChange={onFormElementChanged}
-          >
-            <option value="0">No</option>
-            <option value="0.5">1/2 BPC</option>
-            <option value="1">1 BPC</option>
-            <option value="2">2 BPC</option>
-          </select>
-          <label htmlFor="inputAdicionalFondoSolidaridad">
-            ¿Adicional Fondo de Solidaridad?
-          </label>
-          <input
-            id="inputAdicionalFondoSolidaridad"
-            name="adicionalFondoSolidaridad"
-            className={styles.formInput}
-            type="checkbox"
-            checked={state.formState.adicionalFondoSolidaridad}
-            onChange={onFormElementChanged}
-          />
-          <label htmlFor="inputAportesCajaProfesionales">
-            Aporte mensual a CJPPU o Caja Notarial:
-          </label>
-          <input
-            id="inputAportesCajaProfesionales"
-            name="aportesCJPPU"
-            className={styles.formInput}
-            type="number"
-            onFocus={handleFocus}
-            min="0"
-            value={state.formState.aportesCJPPU}
-            onChange={onFormElementChanged}
-          />
-          <label htmlFor="inputOtrasDeducciones">Otras deducciones:</label>
-          <input
-            id="inputOtrasDeducciones"
-            name="otrasDeducciones"
-            className={styles.formInput}
-            type="number"
-            onFocus={handleFocus}
-            min="0"
-            value={state.formState.otrasDeducciones}
-            onChange={onFormElementChanged}
-          />
-        </div>
-        {BPC.has(state.formState.anio) ? (
-          <button key={+new Date()} className={styles.btnSubmit}>
-            Calcular
-          </button>
-        ) : null}
-      </form>
-
-      {state.result ? <Result calculateFrom={state.result} /> : null}
+      </div>
     </div>
   );
 }

@@ -131,7 +131,6 @@ export const calcularIPRF = (
   // Calcular si hay que aplicar el aumento a ingresos gravados Seguridad Social
   if (salarioEnBPC > 10)
     salarioNominal *= 1 + INCREMENTO_INGRESOS_GRAVADOS * 0.01;
-  console.log(salarioNominal);
 
   // Cantidad deducida del IRPF por los hijos
   const deduccionesHijos =

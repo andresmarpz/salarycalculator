@@ -45,7 +45,7 @@ const IRPF_FRANJAS = [
   { desde: 50, hasta: 75, tasa: 27 },
   { desde: 75, hasta: 115, tasa: 31 },
   { desde: 115, hasta: 0, tasa: 36 },
-];
+] as const;
 
 /**
  * Porcentaje de aportes jubilatorios.
