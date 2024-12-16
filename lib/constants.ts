@@ -30,7 +30,7 @@ const BPC = new Map([
 /**
  * Valor del dolar en pesos uruguayos.
  */
-export const USD_VALUE = 44.25;
+export const USD_VALUE = 42.602;
 
 /**
  * Franjas de IPRF.

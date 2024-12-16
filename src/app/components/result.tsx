@@ -6,6 +6,7 @@ import {
   ADICIONAL_FONDO_SOLIDARIDAD,
   BPC,
   IRPF_FRANJAS,
+  USD_VALUE,
 } from "../../../lib/constants";
 import { DetalleIRPF } from "../../../lib/calc";
 import {
@@ -24,12 +25,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import SalaryChart from "./salary-chart";
-import { IFormState } from "@/app/components/form";
 
-interface IProps {
-  anio: number;
-  formSubmitted: boolean;
-  salarioLiquido: number;
+export interface SalaryResult {
+  salarioLiquidoPesos: number;
   aportesJubilatorios: number;
   aportesFONASA: number;
   aporteFRL: number;
@@ -38,20 +36,14 @@ interface IProps {
   aportesFondoSolidaridad: number;
   adicionalFondoSolidaridad: boolean;
   aportesCJPPU: number;
+  exchangeRate: number;
 }
 
-function Result({
-  calculateFrom,
-  formState,
-}: {
-  calculateFrom: IProps | null;
-  formState: IFormState;
-}) {
+function Result({ calculateFrom }: { calculateFrom: SalaryResult | null }) {
   if (!calculateFrom) return null;
 
   const {
-    anio,
-    salarioLiquido,
+    salarioLiquidoPesos,
     aportesJubilatorios,
     aportesFONASA,
     aporteFRL,
@@ -60,12 +52,13 @@ function Result({
     aportesFondoSolidaridad,
     adicionalFondoSolidaridad,
     aportesCJPPU,
+    exchangeRate,
   } = calculateFrom;
 
   const totalFondoSolidaridadRedondeado = () =>
     Number(
-      (aportesFondoSolidaridad * BPC.get(anio)!) / 12 + // TODO: Check not null
-        (adicionalFondoSolidaridad ? ADICIONAL_FONDO_SOLIDARIDAD(anio)! : 0) // TODO: Check not null
+      (aportesFondoSolidaridad * BPC.get(2024)!) / 12 + // TODO: Check not null
+        (adicionalFondoSolidaridad ? ADICIONAL_FONDO_SOLIDARIDAD(2024)! : 0) // TODO: Check not null
     ); // .toFixed(2)
 
   const totalBPSRedondeado = () =>
@@ -75,23 +68,34 @@ function Result({
     totalBPSRedondeado() + totalIRPF + aportesFondoSolidaridad;
 
   return (
-    <Card>
+    <Card className="rounded-none">
       <CardHeader>
         <CardTitle>Resultado del cálculo</CardTitle>
         <CardDescription>Desglose de su salario líquido</CardDescription>
       </CardHeader>
       <CardContent>
-        {salarioLiquido ? (
+        {salarioLiquidoPesos ? (
           <div className="space-y-6">
             <div className="rounded-lg bg-muted p-4">
               <div className="text-sm text-muted-foreground">
                 Salario líquido
               </div>
-              <div className="text-3xl font-bold">
-                $
-                {salarioLiquido.toLocaleString("es-UY", {
-                  maximumFractionDigits: 2,
-                })}
+              <div className="flex flex-col">
+                <div className="text-3xl font-bold">
+                  $
+                  {salarioLiquidoPesos.toLocaleString("es-UY", {
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
+                <div className="text-md text-muted-foreground">
+                  USD{" "}
+                  {(salarioLiquidoPesos / exchangeRate).toLocaleString(
+                    "en-US",
+                    {
+                      maximumFractionDigits: 2,
+                    }
+                  )}
+                </div>
               </div>
             </div>
 

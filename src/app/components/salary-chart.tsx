@@ -16,23 +16,23 @@ import {
 } from "@/components/ui/card";
 
 interface SalaryChartProps {
-  salaryUSD: number;
+  salarioUSD: number;
   minRate?: number;
   maxRate?: number;
   step?: number;
 }
 
 export default function SalaryChart({
-  salaryUSD,
-  minRate = 35,
-  maxRate = 50,
-  step = 0.5,
+  salarioUSD,
+  minRate = 38,
+  maxRate = 100,
+  step = 0.25,
 }: SalaryChartProps) {
   const defs = useMemo(
     () => ({
       anio: new Date().getFullYear(),
       salarioNominal: 0,
-      salarioNominalUSD: salaryUSD,
+      salarioNominalUSD: salarioUSD,
       cotizacionDolar: 0,
       tieneHijos: false,
       tieneConyuge: false,
@@ -44,7 +44,7 @@ export default function SalaryChart({
       aportesCJPPU: 0,
       otrasDeducciones: 0,
     }),
-    [salaryUSD]
+    [salarioUSD]
   );
 
   const chartData = useMemo(() => {
@@ -80,7 +80,7 @@ export default function SalaryChart({
     },
   } satisfies ChartConfig;
 
-  if (salaryUSD === 0) return null;
+  if (salarioUSD === 0) return null;
 
   return (
     <Card>
@@ -124,7 +124,14 @@ export default function SalaryChart({
             />
             <ChartTooltip
               cursor={true}
-              content={<ChartTooltipContent labelKey="rate" />}
+              content={
+                <ChartTooltipContent
+                  labelKey="rate"
+                  labelFormatter={(label, payload) =>
+                    `Cotizacion $${payload[0].payload.rate}`
+                  }
+                />
+              }
             />
             <defs>
               <linearGradient id="fillSalaryUSD" x1="0" y1="0" x2="0" y2="1">

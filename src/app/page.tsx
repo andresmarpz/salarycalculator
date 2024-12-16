@@ -1,180 +1,66 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
-import { calcularImpuestos, DetalleIRPF } from "../../lib/calc";
-import Result from "@/app/components/result";
+import { useState } from "react";
+import { calcularImpuestos } from "../../lib/calc";
+import Result, { SalaryResult } from "@/app/components/result";
 
-import Form from "@/app/components/form";
+import SalaryForm, { FormType } from "@/app/components/salary-form";
 import SalaryChart from "@/app/components/salary-chart";
 
-export interface IFormState {
-  anio: number;
-  salarioNominal: number;
-  salarioNominalUSD: number;
-  cotizacionDolar: number;
-  tieneHijos: boolean;
-  tieneConyuge: boolean;
-  factorDeduccionPersonasACargo: number;
-  cantHijosSinDiscapacidad: number;
-  cantHijosConDiscapacidad: number;
-  aportesFondoSolidaridad: number;
-  adicionalFondoSolidaridad: boolean;
-  aportesCJPPU: number;
-  otrasDeducciones: number;
-  formValido: boolean;
-}
-
-interface IState {
-  formState: IFormState;
-  result: {
-    anio: number;
-    formSubmitted: boolean;
-    salarioLiquido: number;
-    aportesJubilatorios: number;
-    aportesFONASA: number;
-    aporteFRL: number;
-    detalleIRPF: DetalleIRPF | null;
-    totalIRPF: number;
-    aportesFondoSolidaridad: number;
-    adicionalFondoSolidaridad: boolean;
-    aportesCJPPU: number;
-  } | null;
-}
-
 export default function Home() {
-  const [state, setState] = useState<IState>({
-    formState: {
-      anio: new Date().getFullYear(),
-      salarioNominal: 0,
-      salarioNominalUSD: 0,
-      cotizacionDolar: 0,
-      tieneHijos: false,
-      tieneConyuge: false,
-      factorDeduccionPersonasACargo: 1,
-      cantHijosSinDiscapacidad: 0,
-      cantHijosConDiscapacidad: 0,
-      aportesFondoSolidaridad: 0,
-      adicionalFondoSolidaridad: false,
-      aportesCJPPU: 0,
-      otrasDeducciones: 0,
-      formValido: true,
-    },
-    result: null,
-  });
+  const [rawForm, setRawForm] = useState<FormType | null>(null);
+  const [result, setResult] = useState<SalaryResult | null>(null);
 
-  /**
-   * Función que se llama cuando el usuario modifica alguno de los inputs del formulario.
-   */
-  function onFormElementChanged(
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-    const name = e.target.name;
-    const value =
-      e.target.type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : Number(e.target.value);
+  const handleFormSubmit = (data: FormType) => {
+    const salarioNominal =
+      data.moneda === "USD"
+        ? parseFloat(data.salario) * parseFloat(data.exchangeRate)
+        : parseFloat(data.salario);
 
-    setState((state) => ({
-      ...state,
-      formState: {
-        ...state.formState,
-        [name]: value,
-        formValido: true,
-      },
-    }));
-  }
+    const calcResult = calcularImpuestos({
+      anio: 2024,
+      salarioNominal,
+      tieneHijos: data.tieneHijos,
+      tieneConyuge: data.tieneConyuge,
+      factorDeduccionPersonasACargo: Number(data.factorDeduccionPersonasACargo),
+      cantHijosSinDiscapacidad: data.cantHijosSinDiscapacidad,
+      cantHijosConDiscapacidad: data.cantHijosConDiscapacidad,
+      aportesFondoSolidaridad: Number(data.aportesFondoSolidaridad),
+      adicionalFondoSolidaridad: data.adicionalFondoSolidaridad,
+      aportesCJPPU: data.aportesCJPPU,
+      otrasDeducciones: data.otrasDeducciones,
+    });
 
-  /**
-   * Función que se llama cuando el usuario hace submit en el formulario.
-   */
-  function onFormSubmitted(
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
-  ) {
-    e.preventDefault();
+    setRawForm(data);
 
-    if (state.formState.salarioNominal > 0) {
-      const {
-        salarioLiquido,
-        aportesJubilatorios,
-        aportesFONASA,
-        aporteFRL,
-        detalleIRPF,
-        totalIRPF,
-      } = calcularImpuestos({
-        anio: state.formState.anio,
-        salarioNominal: state.formState.salarioNominal,
-        tieneHijos: state.formState.tieneHijos,
-        tieneConyuge: state.formState.tieneConyuge,
-        factorDeduccionPersonasACargo:
-          state.formState.factorDeduccionPersonasACargo,
-        cantHijosSinDiscapacidad: state.formState.cantHijosSinDiscapacidad,
-        cantHijosConDiscapacidad: state.formState.cantHijosConDiscapacidad,
-        aportesFondoSolidaridad: state.formState.aportesFondoSolidaridad,
-        adicionalFondoSolidaridad: state.formState.adicionalFondoSolidaridad,
-        aportesCJPPU: state.formState.aportesCJPPU,
-        otrasDeducciones: state.formState.otrasDeducciones,
-      });
-
-      if (salarioLiquido >= 0) {
-        setState({
-          ...state,
-          result: {
-            anio: state.formState.anio,
-            formSubmitted: true,
-            salarioLiquido: salarioLiquido,
-            aportesJubilatorios: aportesJubilatorios,
-            aportesFONASA: aportesFONASA,
-            aporteFRL: aporteFRL,
-            detalleIRPF: detalleIRPF,
-            totalIRPF: totalIRPF,
-            aportesFondoSolidaridad: state.formState.aportesFondoSolidaridad,
-            adicionalFondoSolidaridad:
-              state.formState.adicionalFondoSolidaridad,
-            aportesCJPPU: state.formState.aportesCJPPU,
-          },
-          formState: {
-            ...state.formState,
-            formValido: true,
-          },
-        });
-      } else {
-        setState({
-          ...state,
-          result: null,
-          formState: {
-            ...state.formState,
-            formValido: false,
-          },
-        });
-      }
-    } else {
-      setState({
-        ...state,
-        result: null,
-        formState: {
-          ...state.formState,
-          formValido: false,
-        },
-      });
-    }
-  }
+    setResult({
+      salarioLiquidoPesos: calcResult.salarioLiquido,
+      aportesJubilatorios: calcResult.aportesJubilatorios,
+      aportesFONASA: calcResult.aportesFONASA,
+      aporteFRL: calcResult.aporteFRL,
+      detalleIRPF: calcResult.detalleIRPF,
+      totalIRPF: calcResult.totalIRPF,
+      aportesFondoSolidaridad: Number(data.aportesFondoSolidaridad),
+      adicionalFondoSolidaridad: data.adicionalFondoSolidaridad,
+      aportesCJPPU: data.aportesCJPPU,
+      exchangeRate: parseFloat(data.exchangeRate),
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-background p-4 lg:p-8">
+    <div className="bg-background p-4">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-2">
-          <Form
-            onFormElementChanged={onFormElementChanged}
-            onFormSubmitted={onFormSubmitted}
-            formState={state.formState}
-          />
+          <SalaryForm onFormSubmitted={handleFormSubmit} />
 
-          <Result calculateFrom={state.result} formState={state.formState} />
+          {result && <Result calculateFrom={result} />}
         </div>
 
-        <div className="mt-8">
-          <SalaryChart salaryUSD={state.formState.salarioNominalUSD} />
-        </div>
+        {rawForm && (
+          <div className="mt-8">
+            <SalaryChart salarioUSD={parseFloat(rawForm?.salario)} />
+          </div>
+        )}
       </div>
     </div>
   );

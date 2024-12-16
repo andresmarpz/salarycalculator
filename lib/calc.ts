@@ -51,6 +51,7 @@ export interface CalculoImpuestosInput {
   adicionalFondoSolidaridad: boolean;
   aportesCJPPU: number;
   otrasDeducciones: number;
+  exchangeRate: number;
 }
 
 /**

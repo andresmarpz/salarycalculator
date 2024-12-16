@@ -24,11 +24,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div
+          className="grid w-full"
+          style={{
+            minHeight: "100vh",
+            gridTemplateColumns: "10% 80% 10%",
+            gridTemplateRows:
+              "minmax(10vh, auto) minmax(80vh, auto) minmax(10vh, auto)",
+          }}
+        >
+          {/* Top row */}
+          <div className="border-b border-r"></div>
+          <div className="border-b border-r border-l"></div>
+          <div className="border-b border-l"></div>
+
+          {/* Middle row */}
+          <div className="border-b border-r"></div>
+          <div className="border-b border-r border-l">{children}</div>
+          <div className="border-b border-l"></div>
+
+          {/* Bottom row */}
+          <div className="border-r"></div>
+          <div className="border-r border-l"></div>
+          <div className="border-l"></div>
+        </div>
       </body>
     </html>
   );
