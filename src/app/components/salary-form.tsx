@@ -23,6 +23,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
+  anio: z
+    .string()
+    .refine((value) => parseInt(value) >= 2021 && parseInt(value) <= 2025, {
+      message: "El año debe ser mayor a 2021 y menor a 2025",
+    }),
   salario: z.string().refine((value) => parseFloat(value) > 0, {
     message: "El salario debe ser mayor a 0",
   }),
@@ -50,6 +55,7 @@ export default function SalaryForm({
 }) {
   const form = useForm<FormType>({
     defaultValues: {
+      anio: "2025",
       salario: "",
       moneda: "UYU",
       exchangeRate: "45.75",
@@ -71,7 +77,34 @@ export default function SalaryForm({
       <form onSubmit={form.handleSubmit(onFormSubmitted)}>
         <section>
           <div className="rounded-lg border border-b-0 bg-card p-4 text-card-foreground shadow-sm flex flex-col gap-2">
+            <FormField
+              name="anio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Año</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value.toString()}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione año" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2021">2021</SelectItem>
+                        <SelectItem value="2022">2022</SelectItem>
+                        <SelectItem value="2023">2023</SelectItem>
+                        <SelectItem value="2024">2024</SelectItem>
+                        <SelectItem value="2025">2025</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
             <CurrencyInput />
+
             <FormField
               control={form.control}
               name="exchangeRate"

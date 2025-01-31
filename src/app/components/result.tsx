@@ -27,6 +27,7 @@ import {
 import SalaryChart from "./salary-chart";
 
 export interface SalaryResult {
+  anio: number;
   salarioLiquidoPesos: number;
   aportesJubilatorios: number;
   aportesFONASA: number;
@@ -43,6 +44,7 @@ function Result({ calculateFrom }: { calculateFrom: SalaryResult | null }) {
   if (!calculateFrom) return null;
 
   const {
+    anio,
     salarioLiquidoPesos,
     aportesJubilatorios,
     aportesFONASA,
@@ -57,8 +59,8 @@ function Result({ calculateFrom }: { calculateFrom: SalaryResult | null }) {
 
   const totalFondoSolidaridadRedondeado = () =>
     Number(
-      (aportesFondoSolidaridad * BPC.get(2024)!) / 12 + // TODO: Check not null
-        (adicionalFondoSolidaridad ? ADICIONAL_FONDO_SOLIDARIDAD(2024)! : 0) // TODO: Check not null
+      (aportesFondoSolidaridad * BPC.get(anio)!) / 12 + // TODO: Check not null
+        (adicionalFondoSolidaridad ? ADICIONAL_FONDO_SOLIDARIDAD(anio)! : 0) // TODO: Check not null
     ); // .toFixed(2)
 
   const totalBPSRedondeado = () =>

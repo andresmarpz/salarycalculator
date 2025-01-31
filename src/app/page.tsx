@@ -18,7 +18,7 @@ export default function Home() {
         : parseFloat(data.salario);
 
     const calcResult = calcularImpuestos({
-      anio: 2024,
+      anio: parseInt(data.anio),
       salarioNominal,
       tieneHijos: data.tieneHijos,
       tieneConyuge: data.tieneConyuge,
@@ -34,6 +34,7 @@ export default function Home() {
     setRawForm(data);
 
     setResult({
+      anio: parseInt(data.anio),
       salarioLiquidoPesos: calcResult.salarioLiquido,
       aportesJubilatorios: calcResult.aportesJubilatorios,
       aportesFONASA: calcResult.aportesFONASA,
